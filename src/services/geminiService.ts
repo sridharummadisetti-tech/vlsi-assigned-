@@ -109,6 +109,40 @@ export const generateDiagram = async (code: string) => {
   return JSON.parse(response.text || '{}');
 };
 
+export const generateTruthTable = async (rtlCode: string) => {
+  const ai = getAiInstance();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3.1-pro-preview',
+    contents: `Analyze the following Verilog RTL and generate a truth table representing its logical behavior.
+    
+    RTL:
+    ${rtlCode}
+    
+    Return a JSON object representing the truth table.
+    Schema:
+    {
+      "description": "string", // Brief description of the table
+      "headers": ["string"], // Input and output signal names
+      "rows": [["string"]] // Array of rows, each row is an array of string values (e.g., '0', '1', 'X', 'Z')
+    }
+    `,
+    config: {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          description: { type: Type.STRING },
+          headers: { type: Type.ARRAY, items: { type: Type.STRING } },
+          rows: { type: Type.ARRAY, items: { type: Type.ARRAY, items: { type: Type.STRING } } }
+        },
+        required: ["description", "headers", "rows"]
+      }
+    }
+  });
+  
+  return JSON.parse(response.text || '{}');
+};
+
 export const generateWaveform = async (rtlCode: string, tbCode: string) => {
   const ai = getAiInstance();
   const response = await ai.models.generateContent({

@@ -3,18 +3,20 @@ import { Sidebar } from './components/Sidebar';
 import { CodeEditor } from './components/CodeEditor';
 import { DiagramViewer } from './components/DiagramViewer';
 import { WaveformViewer } from './components/WaveformViewer';
+import { TruthTableViewer } from './components/TruthTableViewer';
 import { VerificationReport } from './components/VerificationReport';
-import { Cpu, Code2, FileCheck2, Network, Layers, Activity, Menu, X } from 'lucide-react';
-import { generateRtl, generateTestbench, verifyRtl, generateDiagram, designChip, generateWaveform } from './services/geminiService';
+import { Cpu, Code2, FileCheck2, Network, Layers, Activity, Menu, X, Table } from 'lucide-react';
+import { generateRtl, generateTestbench, verifyRtl, generateDiagram, designChip, generateWaveform, generateTruthTable } from './services/geminiService';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'rtl' | 'testbench' | 'verification' | 'diagram' | 'architecture' | 'waveform'>('rtl');
+  const [activeTab, setActiveTab] = useState<'rtl' | 'testbench' | 'verification' | 'diagram' | 'architecture' | 'waveform' | 'truthtable'>('rtl');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [rtlCode, setRtlCode] = useState<string>('// Enter a description and click "Generate RTL" to start');
   const [testbenchCode, setTestbenchCode] = useState<string>('// Generate testbench from RTL');
   const [verificationReport, setVerificationReport] = useState<string>('No report generated yet.');
   const [diagramData, setDiagramData] = useState<any>(null);
   const [waveformData, setWaveformData] = useState<any>(null);
+  const [truthTableData, setTruthTableData] = useState<any>(null);
   const [architectureDoc, setArchitectureDoc] = useState<string>('No architecture designed yet.');
 
   const [isGeneratingRtl, setIsGeneratingRtl] = useState(false);
@@ -22,6 +24,7 @@ export default function App() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isGeneratingDiagram, setIsGeneratingDiagram] = useState(false);
   const [isGeneratingWaveform, setIsGeneratingWaveform] = useState(false);
+  const [isGeneratingTruthTable, setIsGeneratingTruthTable] = useState(false);
   const [isDesigningChip, setIsDesigningChip] = useState(false);
 
   const handleGenerateRtl = async (description: string) => {
@@ -100,6 +103,22 @@ export default function App() {
       console.error(e);
     } finally {
       setIsGeneratingWaveform(false);
+    }
+  };
+
+  const handleGenerateTruthTable = async () => {
+    if (!rtlCode || rtlCode.startsWith('//')) return;
+    setIsGeneratingTruthTable(true);
+    try {
+      const data = await generateTruthTable(rtlCode);
+      if (data) {
+        setTruthTableData(data);
+        setActiveTab('truthtable');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGeneratingTruthTable(false);
     }
   };
 
@@ -194,6 +213,12 @@ export default function App() {
               label="Waveform"
             />
             <TabButton 
+              active={activeTab === 'truthtable'} 
+              onClick={() => setActiveTab('truthtable')}
+              icon={<Table size={16} />}
+              label="Truth Table"
+            />
+            <TabButton 
               active={activeTab === 'architecture'} 
               onClick={() => setActiveTab('architecture')}
               icon={<Layers size={16} />}
@@ -219,6 +244,11 @@ export default function App() {
               label="Generate Diagram"
             />
             <ActionButton 
+              onClick={handleGenerateTruthTable} 
+              loading={isGeneratingTruthTable}
+              label="Generate Truth Table"
+            />
+            <ActionButton 
               onClick={handleGenerateWaveform} 
               loading={isGeneratingWaveform}
               label="Simulate Waveform"
@@ -242,6 +272,9 @@ export default function App() {
           )}
           {activeTab === 'waveform' && (
             <WaveformViewer data={waveformData} />
+          )}
+          {activeTab === 'truthtable' && (
+            <TruthTableViewer data={truthTableData} />
           )}
           {activeTab === 'architecture' && (
             <VerificationReport report={architectureDoc} />
