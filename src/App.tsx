@@ -4,11 +4,12 @@ import { CodeEditor } from './components/CodeEditor';
 import { DiagramViewer } from './components/DiagramViewer';
 import { WaveformViewer } from './components/WaveformViewer';
 import { VerificationReport } from './components/VerificationReport';
-import { Cpu, Code2, FileCheck2, Network, Layers, Activity } from 'lucide-react';
+import { Cpu, Code2, FileCheck2, Network, Layers, Activity, Menu, X } from 'lucide-react';
 import { generateRtl, generateTestbench, verifyRtl, generateDiagram, designChip, generateWaveform } from './services/geminiService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'rtl' | 'testbench' | 'verification' | 'diagram' | 'architecture' | 'waveform'>('rtl');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [rtlCode, setRtlCode] = useState<string>('// Enter a description and click "Generate RTL" to start');
   const [testbenchCode, setTestbenchCode] = useState<string>('// Generate testbench from RTL');
   const [verificationReport, setVerificationReport] = useState<string>('No report generated yet.');
@@ -119,20 +120,50 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-full bg-[#151619] text-gray-200 font-sans overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar 
-        onGenerateRtl={handleGenerateRtl} 
-        isGenerating={isGeneratingRtl} 
-        onDesignChip={handleDesignChip}
-        isDesigning={isDesigningChip}
-      />
+      {/* Sidebar - Desktop */}
+      <div className="hidden md:block w-80 h-full shrink-0 border-r border-white/10">
+        <Sidebar 
+          onGenerateRtl={handleGenerateRtl} 
+          isGenerating={isGeneratingRtl} 
+          onDesignChip={handleDesignChip}
+          isDesigning={isDesigningChip}
+        />
+      </div>
+
+      {/* Sidebar - Mobile */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setIsSidebarOpen(false)} />
+          <div className="relative w-80 max-w-[85vw] h-full bg-[#151619] flex flex-col shadow-2xl">
+            <button 
+              onClick={() => setIsSidebarOpen(false)}
+              className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-white z-10 bg-black/20 rounded-md"
+            >
+              <X size={18} />
+            </button>
+            <Sidebar 
+              onGenerateRtl={(desc) => { handleGenerateRtl(desc); setIsSidebarOpen(false); }} 
+              isGenerating={isGeneratingRtl} 
+              onDesignChip={(desc) => { handleDesignChip(desc); setIsSidebarOpen(false); }}
+              isDesigning={isDesigningChip}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full bg-[#1A1C20] border-l border-white/10">
+      <div className="flex-1 flex flex-col h-full bg-[#1A1C20] min-w-0">
         {/* Header / Tabs */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#151619] overflow-x-auto">
-          <div className="flex space-x-1 min-w-max">
-            <TabButton 
+          <div className="flex items-center min-w-max">
+            <button 
+              className="md:hidden p-1.5 text-gray-400 hover:text-gray-200 bg-white/5 rounded-md border border-white/10 mr-3" 
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={18} />
+            </button>
+            <div className="flex space-x-1">
+              <TabButton 
               active={activeTab === 'rtl'} 
               onClick={() => setActiveTab('rtl')}
               icon={<Code2 size={16} />}
@@ -168,6 +199,7 @@ export default function App() {
               icon={<Layers size={16} />}
               label="Architecture"
             />
+            </div>
           </div>
           
           <div className="flex space-x-2 min-w-max ml-4">

@@ -19,7 +19,7 @@ export function Sidebar({ onGenerateRtl, isGenerating, onDesignChip, isDesigning
   };
 
   return (
-    <div className="w-80 h-full flex flex-col bg-[#151619]">
+    <div className="w-full h-full flex flex-col bg-[#151619]">
       <div className="p-4 border-b border-white/10 flex items-center space-x-2">
         <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
           <Sparkles size={18} />
