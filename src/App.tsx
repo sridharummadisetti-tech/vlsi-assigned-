@@ -130,8 +130,8 @@ export default function App() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full bg-[#1A1C20] border-l border-white/10">
         {/* Header / Tabs */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#151619]">
-          <div className="flex space-x-1">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#151619] overflow-x-auto">
+          <div className="flex space-x-1 min-w-max">
             <TabButton 
               active={activeTab === 'rtl'} 
               onClick={() => setActiveTab('rtl')}
@@ -170,7 +170,7 @@ export default function App() {
             />
           </div>
           
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 min-w-max ml-4">
             <ActionButton 
               onClick={handleGenerateTestbench} 
               loading={isGeneratingTb}
@@ -224,7 +224,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
   return (
     <button
       onClick={onClick}
-      className={`flex items-center space-x-2 px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
+      className={`flex items-center space-x-2 px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap ${
         active 
           ? 'bg-[#1A1C20] text-emerald-400 border-t border-x border-white/10' 
           : 'text-gray-400 hover:text-gray-200 hover:bg-white/5 border border-transparent'
@@ -241,7 +241,7 @@ function ActionButton({ onClick, loading, label }: { onClick: () => void, loadin
     <button
       onClick={onClick}
       disabled={loading}
-      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium rounded-md border border-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium rounded-md border border-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 whitespace-nowrap"
     >
       {loading && (
         <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

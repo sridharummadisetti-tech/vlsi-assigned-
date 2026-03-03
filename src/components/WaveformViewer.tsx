@@ -24,10 +24,11 @@ export function WaveformViewer({ data }: WaveformViewerProps) {
   const rowHeight = 40;
   const signalSpacing = 20;
   const labelWidth = 150;
+  const axisHeight = 30;
   
   const maxWaveLen = Math.max(...data.signals.map(s => s.wave.length));
   const width = labelWidth + maxWaveLen * timeStep + 20;
-  const height = data.signals.length * (rowHeight + signalSpacing) + 40;
+  const height = data.signals.length * (rowHeight + signalSpacing) + 40 + axisHeight;
 
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -212,11 +213,39 @@ export function WaveformViewer({ data }: WaveformViewerProps) {
       </div>
       <div className="flex-1 overflow-auto p-6">
         <svg ref={svgRef} width={width} height={height} className="bg-[#1A1C20] rounded-lg border border-white/10" xmlns="http://www.w3.org/2000/svg">
+          {/* Time Axis */}
+          <g className="time-axis">
+            {Array.from({ length: maxWaveLen + 1 }).map((_, i) => (
+              <g key={`axis-${i}`}>
+                <line 
+                  x1={labelWidth + i * timeStep} 
+                  y1={axisHeight - 5} 
+                  x2={labelWidth + i * timeStep} 
+                  y2={axisHeight} 
+                  stroke="#666" 
+                  strokeWidth="1" 
+                />
+                <text 
+                  x={labelWidth + i * timeStep} 
+                  y={axisHeight - 10} 
+                  fill="#888" 
+                  fontSize="10" 
+                  fontFamily="monospace" 
+                  textAnchor="middle"
+                >
+                  {i}
+                </text>
+              </g>
+            ))}
+            <line x1={labelWidth} y1={axisHeight} x2={width} y2={axisHeight} stroke="#666" strokeWidth="1" />
+          </g>
+
+          {/* Grid Lines */}
           {Array.from({ length: maxWaveLen + 1 }).map((_, i) => (
             <line 
               key={`grid-${i}`} 
               x1={labelWidth + i * timeStep} 
-              y1={0} 
+              y1={axisHeight} 
               x2={labelWidth + i * timeStep} 
               y2={height} 
               stroke="#333" 
@@ -225,7 +254,8 @@ export function WaveformViewer({ data }: WaveformViewerProps) {
             />
           ))}
           
-          {data.signals.map((signal, idx) => renderWave(signal, 20 + idx * (rowHeight + signalSpacing)))}
+          {/* Waveforms */}
+          {data.signals.map((signal, idx) => renderWave(signal, axisHeight + 20 + idx * (rowHeight + signalSpacing)))}
         </svg>
       </div>
     </div>
